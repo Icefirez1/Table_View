@@ -38,16 +38,10 @@ public class PlayGround extends Application
     public void start(Stage primary)
     {
         
-        TableColumn<Person, String> column1 = new TableColumn<>("First Name");
-        column1.setCellValueFactory(
-            new PropertyValueFactory<>("firstName"));
-        TableColumn<Person, String> column2 = new TableColumn<>("Last Name");
-        column2.setCellValueFactory(
-                new PropertyValueFactory<>("lastName"));
+        // When adding new columns I can make a method that adds them to an arraylist full of table columns
 
-
-        tableView.getColumns().add(column1);
-        tableView.getColumns().add(column2);
+        addColumn("First Name", "firstName");
+        addColumn("Last Name", "lastName");
 
 
         tableView.getItems().add(new Person("Eric", "Chen"));
@@ -63,14 +57,16 @@ public class PlayGround extends Application
         primary.show();
     }
     /**
-     * will add people to the thingy
+     * Adds Column to tableView
+     * @param columnName
+     * @param var
      */
-    
-    public void addPeople()
+    public void addColumn(String columnName, String var)
     {
-        //toDO: making input function to add people
-        //textBox?
-        //Scanner? 
+        TableColumn<Person, String> column = new TableColumn<>(columnName);
+        column.setCellValueFactory(
+            new PropertyValueFactory<>(var));
+        tableView.getColumns().add(column);
     }
     /**
      * stopping application
