@@ -20,7 +20,6 @@ public class PlayGround extends Application
      */
     public PlayGround()
     {   
-
     }
     /**
      * Initializes objects 
@@ -68,7 +67,7 @@ public class PlayGround extends Application
             new PropertyValueFactory<>(var));
         tableView.getColumns().add(column);
     }
-    /**
+    /** 
      * stopping application
      */
     @Override 
