@@ -43,9 +43,9 @@ public class PlayGround extends Application
         addColumn("Last Name", "lastName");
 
 
-        tableView.getItems().add(new Person("Eric", "Chen"));
-        tableView.getItems().add(new Person("Ivan", "Zheng"));
-        tableView.getItems().add(new Person("Your", "Mom"));
+        // tableView.getItems().add(new Person("Eric", "Chen"));
+        // tableView.getItems().add(new Person("Ivan", "Zheng"));
+        // tableView.getItems().add(new Person("Your", "Mom"));
 
 
 

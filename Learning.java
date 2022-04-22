@@ -21,7 +21,7 @@ public class Learning {
     public static void main(String[] args) throws IOException
     {
         Path filePath = Path.of("freshman_lbs.csv");
-
+ 
         try(BufferedReader br = Files.newBufferedReader(filePath))
         {
             br.lines().forEach(e -> addIt(e));

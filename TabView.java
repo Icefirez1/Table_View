@@ -7,6 +7,7 @@ import java.util.List;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 import javafx.scene.layout.VBox;
@@ -50,11 +51,13 @@ public class TabView extends Application
         for(Object column : lines.get(0))
         {
             //figure this out
+            TableColumn<Object, String> addcol = new TableColumn<>(column.toString());
+            table.getColumns().add(addcol);
         }
 
 
         System.out.println(lines);
-        
+    
 
         //Showing stuff 
         VBox vbox = new VBox(table);
