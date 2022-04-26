@@ -18,7 +18,8 @@ import java.util.Arrays;
 public class TabView extends Application
 {
     TableView table = new TableView<>(); 
-    List<List> lines = new ArrayList<>();
+    ArrayList<String[]> lines = new ArrayList<>();
+    ArrayList<TableColumn<String, String>> column_list = new ArrayList<>();
 
 
     /**
@@ -33,30 +34,43 @@ public class TabView extends Application
      * Starting application
      * @throws IOException
      */
+    @SuppressWarnings("unchecked")
     public void start(Stage primary) throws IOException
     {
 
         //Getting CSV file and putting it to a list of strings
-        Path filePath = Path.of("freshman_lbs.csv");
-        try(BufferedReader br = Files.newBufferedReader(filePath))
-        {
-            br.lines().forEach(   e -> lines.add(Arrays.asList(e.split(", "))));
+        // Path filePath = Path.of("freshman_lbs.csv");
+        // try(BufferedReader br = Files.newBufferedReader(filePath))
+        // {
+        //     br.lines().forEach(   e -> lines.add(Arrays.asList(e.split(", "))));
+        // }
+        // catch (NoSuchFileException ex)
+        // {
+        //     System.err.println("File does not exsist");
+        // }
+
+        // Gets Lines Using Paul's CSV Loader
+        // his validation stuff is weird I gotta ask him about that (not like his code is bad)
+        // I just 
+        try {
+            lines = CSVLoader.loadCSV("freshman_lbs.csv");
         }
-        catch (NoSuchFileException ex)
-        {
-            System.err.println("File does not exsist");
+        catch (Exception ex) {
+            ex.printStackTrace();
         }
+
 
         //Making a column for each thing in the csv file 
         for(Object column : lines.get(0))
         {
             //figure this out
-            TableColumn<Object, String> addcol = new TableColumn<>(column.toString());
+            TableColumn<String, String> addcol = new TableColumn<>(column.toString());
+            
             table.getColumns().add(addcol);
+            column_list.add(addcol);
         }
 
 
-        System.out.println(lines);
     
 
         //Showing stuff 

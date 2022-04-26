@@ -47,6 +47,9 @@ public class CSVLoader {
         //   by preceeding it with another double quote."
         // Ex. "aaa","b""bb","ccc" is the same as aaa,bbb,ccc
 
+
+        // Ask Paul about validate line
+
         // Open a buffered reader
         BufferedReader br = Files.newBufferedReader(Path.of(file));
 
@@ -68,7 +71,7 @@ public class CSVLoader {
 
         // Do some validation on the line
         // This line will throw a CSVParseException if something is invalid
-        validateLine(splitLine);
+        // uh validateLine(splitLine);
 
         // Use the first row to calculate the expected length of other rows
         int expectedLineLength = splitLine.length;
@@ -82,7 +85,7 @@ public class CSVLoader {
             splitLine = line.split(",");
 
             // Validate the line, including length
-            validateLine(splitLine, expectedLineLength);
+            // uh validateLine(splitLine, expectedLineLength);
 
             // Otherwise, add it to the data
             data.add(splitLine);
@@ -154,13 +157,13 @@ public class CSVLoader {
         }
 
         // Valdiate everything else
-        validateLine(line);
+        // validateLine(line);
     }
 
     public static void main(String[] args) {
         ArrayList<String[]> data = null;
         try {
-            data = loadCSV("section2.5tests.csv");
+            data = loadCSV("freshman_lbs.csv");
         }
         catch (Exception ex) {
             ex.printStackTrace();
