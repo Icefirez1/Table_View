@@ -1,5 +1,3 @@
-package Practice_Stuff;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.control.TableColumn;
