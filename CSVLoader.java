@@ -6,11 +6,28 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+// TODO: update RFC enforcement after commas are allowed in quotes
+// TODO: update RFC enforcement after quotes are allowed in quotes
 /*
 *   Load a CSV file into an ArrayList.
 *   The ArrayList contains a String[]. Each String[] has the same length.
-*   This is mostly compliant with RFC 4180, which can be found at:
+*   This is based off of RFC 4180, which can be found at:
 *   https://datatracker.ietf.org/doc/html/rfc4180
+*   However, many of the requirements are loosened to allow for more CSVs
+*   to be parsed without error.
+*   
+*   Section 2.1 - ignored; non-CRLF line endings are allowed
+*   Section 2.2 - enforced
+*   Section 2.3 - enforced; an arbitrary number of rows can be skipped
+*   Section 2.4 - partially enforced; all records must have the same number of
+*                 fields; spaces at the beginning of a field may be ignored if
+*                 it is detected that a ", " separator is being used; a
+*                 trailing comma will result in a parse error
+*   Section 2.5 - enforced
+*   Section 2.6 - ignored; line endings and double quotes in fields
+*                 will result in parsing errors
+*   Section 2.7 - ignored; two double quotes will be treated as two double
+*                 quotes instead of a single escaped double quote
 */
 public class CSVLoader {
     /**
@@ -27,29 +44,6 @@ public class CSVLoader {
     public static ArrayList<String[]> loadCSV(String file, int skipRows)
         throws FileNotFoundException, IOException, CSVParseException {
 
-        // Technically this parser ignores RFC 4180 section 2.1
-        // This parser does not force CRLF to be used. It will accept
-        //   other line breaks.
-        // Section 2.1 is silly, so I'm not going to enforce CRLF line breaks
-
-        // TODO: implement RFC 4180 section 2.6:
-        // "Fields containing line breaks, double quotes, and commas
-        //   should be enclosed in double quotes."
-        // So records != lines. For example:
-        //   1,2,3
-        //   a,"b\n",c
-        //   ",",;,'
-        // should be perfectly valid, if "\n" was actually replaced by a newline
-
-        // TODO: enforce RFC 4180 section 2.7:
-        // "If double quotes are used to enclose fields, then a 
-        //   double quote appearing inside a field must be escaped
-        //   by preceeding it with another double quote."
-        // Ex. "aaa","b""bb","ccc" is the same as aaa,bbb,ccc
-
-
-        // Ask Paul about validate line
-
         // Open a buffered reader
         BufferedReader br = Files.newBufferedReader(Path.of(file));
 
@@ -63,15 +57,16 @@ public class CSVLoader {
 
         // Parse the first non-skipped line separately to get row length
         String line = br.readLine();
-        
+
         // Use the separator to parse the first line
         // According to RFC 4180 section 2.4 "spaces are considered part of a
         // field and should not be ignored".
-        String[] splitLine = line.split(",");
+        //String[] splitLine = line.split(separator);
+        String[] splitLine = splitLine(line);
 
         // Do some validation on the line
         // This line will throw a CSVParseException if something is invalid
-        // uh validateLine(splitLine);
+        validateLine(splitLine);
 
         // Use the first row to calculate the expected length of other rows
         int expectedLineLength = splitLine.length;
@@ -82,10 +77,10 @@ public class CSVLoader {
         // Loop over the other lines, parsing the info
         while ((line = br.readLine()) != null) {
             // Split the line
-            splitLine = line.split(",");
+            splitLine = splitLine(line);
 
             // Validate the line, including length
-            // uh validateLine(splitLine, expectedLineLength);
+            validateLine(splitLine, expectedLineLength);
 
             // Otherwise, add it to the data
             data.add(splitLine);
@@ -113,11 +108,84 @@ public class CSVLoader {
         return loadCSV(file, 0);
     }
 
+    // Split the line using an autodetected separator
+    // If double quotes are used, separators used within them will be ignored
+    private static String[] splitLine(String line) {
+        // Detect if ", " or "," is being used
+        String separator = ",";
+        if (line.indexOf(", ") != -1) {
+            separator = ", ";
+        }
+
+        // If no quotes are used, just use line.split() to make things easier
+        if (line.indexOf('"') == -1) {
+            return line.split(separator);
+        }
+
+        // If quotes are present, iterate over the line manually
+        
+        // Store if quotes are active
+        boolean quotesActive = false;
+
+        // Store the split parts of the line
+        ArrayList<String> splitLine = new ArrayList<>();
+
+        // Store the current field
+        StringBuilder currentField = new StringBuilder();
+
+        // How to split when the separator is ", "?
+        // Two characters, so can't detect single character anymore
+        // Loop over and split on "," even if ", " is used?
+        //  - Afterwards if ", " was detected remove at most 1 leading
+        //    space from all but the first fields 
+
+        // Loop over the line
+        for (char c : line.toCharArray()) {
+            // If the character is a comma and quotes arent' active, end the field
+            if (c == ',' && !quotesActive) {
+                splitLine.add(currentField.toString());
+                currentField = new StringBuilder();
+
+                continue;
+            }
+
+            // If the character is a double quote, toggle the quote flag
+            if (c == '"') {
+                quotesActive = !quotesActive;
+            }
+
+            // Add the character to the field
+            currentField.append(c);
+        }
+        splitLine.add(currentField.toString());
+
+        // If the separator is ", ", manually remove the leading
+        //   spaces.
+        if (separator.equals(", ")) {
+            // Iterate over each field except for the first
+            for (int i = 1; i < splitLine.size(); i++) {
+                String field = splitLine.get(i);
+
+                // If the first character is a space, remove it
+                if (field.charAt(0) == ' ') {
+                    splitLine.set(i, field.substring(1));
+                }
+            }
+        }
+
+        // Copy the ArrayList into a String[]
+        String[] out = new String[splitLine.size()];
+        for (int i = 0; i < splitLine.size(); i++) {
+            out[i] = splitLine.get(i);
+        }
+
+        return out;
+    }
+
     // Validates some information about the line:
     //  - RFC 4180 section 2.5: fields may or may not include double quotes
     //    - If a field contains double quotes, it must be enclosed
     //        in double quotes
-    //  
     private static void validateLine(String[] line) throws CSVParseException {
         for (String val : line) {
             // Enforce RFC 4180 section 2.5:
@@ -136,6 +204,9 @@ public class CSVLoader {
                 // If the first quote isn't at the start or the
                 //   the last quote isn't at the end throw an error
                 if (firstQuoteIndex != 0 || lastQuoteIndex != val.length()-1) {
+                    System.out.println(val);
+                    System.out.println(firstQuoteIndex);
+                    System.out.println(lastQuoteIndex);
                     throw new CSVParseException("Values with quotes must be enclosed in quotes");
                 }
 
@@ -157,7 +228,7 @@ public class CSVLoader {
         }
 
         // Valdiate everything else
-        // validateLine(line);
+        validateLine(line);
     }
 
     public static void main(String[] args) {
