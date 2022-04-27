@@ -24,7 +24,9 @@ import java.util.Arrays;
 *                 it is detected that a ", " separator is being used; a
 *                 trailing comma will result in a parse error
 *   Section 2.5 - enforced
-*   Section 2.6 - ignored; line endings and double quotes in fields
+*   Section 2.6 - partially enforced; line endings in fields will result in;
+*                 parse errors; commas and double quotes are allowed inside of
+*                 double quotes
 *                 will result in parsing errors
 *   Section 2.7 - ignored; two double quotes will be treated as two double
 *                 quotes instead of a single escaped double quote
@@ -62,11 +64,11 @@ public class CSVLoader {
         // According to RFC 4180 section 2.4 "spaces are considered part of a
         // field and should not be ignored".
         //String[] splitLine = line.split(separator);
-        String[] splitLine = splitLine(line);
+        String[] splitLine = parseLine(line);
 
         // Do some validation on the line
         // This line will throw a CSVParseException if something is invalid
-        validateLine(splitLine);
+        //validateLine(splitLine);
 
         // Use the first row to calculate the expected length of other rows
         int expectedLineLength = splitLine.length;
@@ -77,10 +79,10 @@ public class CSVLoader {
         // Loop over the other lines, parsing the info
         while ((line = br.readLine()) != null) {
             // Split the line
-            splitLine = splitLine(line);
+            splitLine = parseLine(line);
 
             // Validate the line, including length
-            validateLine(splitLine, expectedLineLength);
+            //validateLine(splitLine, expectedLineLength);
 
             // Otherwise, add it to the data
             data.add(splitLine);
@@ -110,7 +112,7 @@ public class CSVLoader {
 
     // Split the line using an autodetected separator
     // If double quotes are used, separators used within them will be ignored
-    private static String[] splitLine(String line) {
+    private static String[] parseLine(String line) {
         // Detect if ", " or "," is being used
         String separator = ",";
         if (line.indexOf(", ") != -1) {
@@ -133,14 +135,11 @@ public class CSVLoader {
         // Store the current field
         StringBuilder currentField = new StringBuilder();
 
-        // How to split when the separator is ", "?
-        // Two characters, so can't detect single character anymore
-        // Loop over and split on "," even if ", " is used?
-        //  - Afterwards if ", " was detected remove at most 1 leading
-        //    space from all but the first fields 
-
         // Loop over the line
-        for (char c : line.toCharArray()) {
+        for (int i = 0; i < line.length(); i++) {
+            // Get the current character
+            char c = line.charAt(i);
+
             // If the character is a comma and quotes arent' active, end the field
             if (c == ',' && !quotesActive) {
                 splitLine.add(currentField.toString());
@@ -150,7 +149,22 @@ public class CSVLoader {
             }
 
             // If the character is a double quote, toggle the quote flag
+            //   unless the character after that is also a quote.
+            // If it is, only add one quote to the current field
             if (c == '"') {
+                // If the quote is the last quote, don't try to read past it
+                if (i+1 < line.length()) {
+                    if (line.charAt(i+1) == '"') {
+                        //currentField.append('"');
+                        continue;
+                    }
+                    /* else {
+                        quotesActive = !quotesActive;
+                    } */
+                }
+                /* else {
+                    quotesActive = !quotesActive;
+                } */
                 quotesActive = !quotesActive;
             }
 
