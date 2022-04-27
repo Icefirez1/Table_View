@@ -28,7 +28,7 @@ import java.util.Arrays;
 *                 parse errors; commas and double quotes are allowed inside of
 *                 double quotes
 *                 will result in parsing errors
-*   Section 2.7 - ignored; two double quotes will be treated as two double
+*   Section 2.7 - enforced; two double quotes will be treated as two double
 *                 quotes instead of a single escaped double quote
 */
 public class CSVLoader {
