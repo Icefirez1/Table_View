@@ -68,7 +68,7 @@ public class CSVLoader {
 
         // Do some validation on the line
         // This line will throw a CSVParseException if something is invalid
-        //validateLine(splitLine);
+        validateLine(splitLine);
 
         // Use the first row to calculate the expected length of other rows
         int expectedLineLength = splitLine.length;
@@ -82,7 +82,9 @@ public class CSVLoader {
             splitLine = parseLine(line);
 
             // Validate the line, including length
+
             //validateLine(splitLine, expectedLineLength);
+            validateLine(splitLine, expectedLineLength);
 
             // Otherwise, add it to the data
             data.add(splitLine);
