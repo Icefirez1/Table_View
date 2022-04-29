@@ -1,6 +1,7 @@
 
 import java.io.IOException;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
@@ -15,8 +16,6 @@ public class TabView extends Application
     TableView table = new TableView<>(); 
     ArrayList<String[]> lines = new ArrayList<>();
     ArrayList<TableColumn<String[], String>> column_list = new ArrayList<>();
-    int quack; 
-
 
     /**
      * Variables and stuff ig
@@ -33,22 +32,9 @@ public class TabView extends Application
     public void start(Stage primary) throws IOException
     {
 
-        //Getting CSV file and putting it to a list of strings
-        // Path filePath = Path.of("freshman_lbs.csv");
-        // try(BufferedReader br = Files.newBufferedReader(filePath))
-        // {
-        //     br.lines().forEach(   e -> lines.add(Arrays.asList(e.split(", "))));
-        // }
-        // catch (NoSuchFileException ex)
-        // {
-        //     System.err.println("File does not exsist");
-        // }
-
         // Gets Lines Using Paul's CSV Loader
-        // his validation stuff is weird I gotta ask him about that (not like his code is bad)
-        // I just 
         try {
-            lines = CSVLoader.loadCSV("freshman_lbs.csv");
+            lines = CSVLoader.loadCSV("test.csv");
         }
         catch (Exception ex) {
             ex.printStackTrace();
@@ -56,15 +42,19 @@ public class TabView extends Application
 
 
         //Making a column for each thing in the csv file 
-        for(Object column : lines.get(0))
+        //for(Object column : lines.get(0))
+        for (int i = 0; i < lines.get(0).length; i++)
         {
-            //figure this out
-            quack = Arrays.asList(lines.get(0)).indexOf(column);
+            String column = lines.get(0)[i];
+
+            final int quack = i;
+
+            ////figure this out
             TableColumn<String[], String> addcol = new TableColumn<>(column.toString().replaceAll("\"", ""));
             addcol.setCellValueFactory( e -> 
             {
                 String[] x = e.getValue();
-                return new SimpleStringProperty(x != null && x.length>1 ? x[quack].replaceAll("\"", "") /*this you'll get the index */ : "<no value>");
+                return new SimpleStringProperty(x[quack].replaceAll("\"", ""));
             });
             table.getColumns().add(addcol);
             column_list.add(addcol);
@@ -81,5 +71,10 @@ public class TabView extends Application
         primary.setScene(scene);
         primary.show();
 
+        //Platform.exit();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }
