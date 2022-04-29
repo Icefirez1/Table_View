@@ -66,11 +66,7 @@ public class CSVLoader {
 
         // Do some validation on the line
         // This line will throw a CSVParseException if something is invalid
-<<<<<<< HEAD
-        // uhm validateLine(splitLine);
-=======
         validateLine(splitLine);
->>>>>>> fb4d8f013ed6c43ba6970731edcd8649d0fad37e
 
         // Use the first row to calculate the expected length of other rows
         int expectedLineLength = splitLine.length;
@@ -84,11 +80,7 @@ public class CSVLoader {
             splitLine = splitLine(line);
 
             // Validate the line, including length
-<<<<<<< HEAD
-            // uhm validateLine(splitLine, expectedLineLength);
-=======
             validateLine(splitLine, expectedLineLength);
->>>>>>> fb4d8f013ed6c43ba6970731edcd8649d0fad37e
 
             // Otherwise, add it to the data
             data.add(splitLine);
@@ -236,11 +228,7 @@ public class CSVLoader {
         }
 
         // Valdiate everything else
-<<<<<<< HEAD
-        // uhm validateLine(line);
-=======
         validateLine(line);
->>>>>>> fb4d8f013ed6c43ba6970731edcd8649d0fad37e
     }
 
     public static void main(String[] args) {

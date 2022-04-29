@@ -23,7 +23,7 @@ public class TabView extends Application
      */
     public TabView()
     { 
-
+        quack = 0;
     }
     /**
      * Starting application
@@ -59,16 +59,18 @@ public class TabView extends Application
         for(Object column : lines.get(0))
         {
             //figure this out
-            quack = Arrays.asList(lines.get(0)).indexOf(column);
             TableColumn<String[], String> addcol = new TableColumn<>(column.toString().replaceAll("\"", ""));
             addcol.setCellValueFactory( e -> 
             {
                 String[] x = e.getValue();
                 return new SimpleStringProperty(x != null && x.length>1 ? x[quack].replaceAll("\"", "") /*this you'll get the index */ : "<no value>");
             });
+            quack ++;
+            System.out.println(quack);
             table.getColumns().add(addcol);
             column_list.add(addcol);
         }
+        quack = 0;
         lines.remove(0);
 
 
